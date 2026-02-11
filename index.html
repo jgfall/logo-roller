@@ -1,59 +1,426 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Logo Roller - Coming Soon</title>
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-        
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            min-height: 100vh;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-        }
-        
-        .container {
-            text-align: center;
-            padding: 2rem;
-        }
-        
-        h1 {
-            font-size: 3rem;
-            margin-bottom: 1rem;
-            animation: fadeIn 1s ease-in;
-        }
-        
-        p {
-            font-size: 1.5rem;
-            opacity: 0.9;
-            animation: fadeIn 1.5s ease-in;
-        }
-        
-        @keyframes fadeIn {
-            from {
-                opacity: 0;
-                transform: translateY(-20px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-    </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Logo Roller - Greathouse Fall Studio</title>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=VT323&family=Press+Start+2P&family=Silkscreen:wght@400;700&family=DotGothic16&family=Pixelify+Sans:wght@400;700&family=Instrument+Serif:ital@0;1&family=DM+Serif+Display:ital@0;1&family=Space+Mono:ital,wght@0,400;0,700;1,400&family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=IBM+Plex+Mono:ital,wght@0,400;0,700;1,400&family=Cormorant+Garamond:ital,wght@0,400;0,700;1,400&family=Bebas+Neue&family=Source+Code+Pro:ital,wght@0,400;0,700;1,400&display=swap">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    
+    html, body {
+      height: 100%;
+      width: 100%;
+      font-family: system-ui, sans-serif;
+    }
+
+    .container {
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      transition: background 0.4s ease;
+      user-select: none;
+      position: relative;
+      overflow: hidden;
+      padding: 40px 20px;
+      cursor: pointer;
+    }
+
+    .container.editing {
+      cursor: default;
+    }
+
+    .description {
+      position: absolute;
+      top: 32px;
+      left: 0;
+      right: 0;
+      text-align: center;
+      font-size: 12px;
+      font-family: 'IBM Plex Mono', monospace;
+      letter-spacing: 0.05em;
+      padding: 0 20px;
+    }
+
+    .word-display {
+      display: flex;
+      align-items: baseline;
+      justify-content: center;
+      flex-wrap: nowrap;
+      line-height: 1;
+      cursor: text;
+    }
+
+    .letter {
+      display: inline-block;
+      transition: all 300ms cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .edit-input {
+      background: transparent;
+      border: none;
+      outline: none;
+      font-family: system-ui, sans-serif;
+      font-weight: 400;
+      text-align: center;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      padding: 8px 0;
+      min-width: 200px;
+    }
+
+    .counter {
+      margin-top: 32px;
+      font-family: 'VT323', monospace;
+      font-size: 16px;
+      letter-spacing: 0.1em;
+    }
+
+    .controls {
+      position: absolute;
+      bottom: 32px;
+      display: flex;
+      gap: 16px;
+      align-items: center;
+    }
+
+    .theme-button {
+      background: none;
+      padding: 6px 14px;
+      border-radius: 99px;
+      font-size: 11px;
+      cursor: pointer;
+      font-family: 'IBM Plex Mono', monospace;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      transition: all 0.3s ease;
+    }
+
+    .size-slider {
+      width: 100px;
+      opacity: 0.5;
+    }
+
+    .size-display {
+      font-size: 11px;
+      font-family: 'IBM Plex Mono', monospace;
+      letter-spacing: 0.05em;
+      min-width: 44px;
+    }
+
+    .hint {
+      position: absolute;
+      top: 24px;
+      right: 28px;
+      font-size: 10px;
+      font-family: 'IBM Plex Mono', monospace;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+
+    /* Dark mode styles */
+    .dark {
+      background: #0a0a0a;
+      color: #f5f2ed;
+    }
+
+    .dark .description,
+    .dark .counter,
+    .dark .size-display,
+    .dark .hint {
+      color: rgba(245, 242, 237, 0.3);
+    }
+
+    .dark .edit-input {
+      color: #f5f2ed;
+      border-bottom: 2px solid rgba(245, 242, 237, 0.3);
+    }
+
+    .dark .theme-button {
+      border: 1px solid rgba(245, 242, 237, 0.3);
+      color: rgba(245, 242, 237, 0.3);
+    }
+
+    .dark .size-slider {
+      accent-color: rgba(245, 242, 237, 0.3);
+    }
+
+    /* Light mode styles */
+    .light {
+      background: #f5f2ed;
+      color: #0a0a0a;
+    }
+
+    .light .description,
+    .light .counter,
+    .light .size-display,
+    .light .hint {
+      color: rgba(10, 10, 10, 0.3);
+    }
+
+    .light .edit-input {
+      color: #0a0a0a;
+      border-bottom: 2px solid rgba(10, 10, 10, 0.3);
+    }
+
+    .light .theme-button {
+      border: 1px solid rgba(10, 10, 10, 0.3);
+      color: rgba(10, 10, 10, 0.3);
+    }
+
+    .light .size-slider {
+      accent-color: rgba(10, 10, 10, 0.3);
+    }
+  </style>
 </head>
 <body>
-    <div class="container">
-        <h1>🎨 Logo Roller</h1>
-        <p>Coming Soon</p>
+  <div class="container dark" id="container">
+    <div class="description">
+      A tool by Greathouse Fall Studio to visualize dynamic type pairings
     </div>
+
+    <div class="word-display" id="wordDisplay"></div>
+    
+    <input type="text" class="edit-input" id="editInput" style="display: none;">
+
+    <div class="counter" id="counter">#0001</div>
+
+    <div class="controls">
+      <button class="theme-button" id="themeButton">Light</button>
+      <input type="range" min="48" max="200" value="120" class="size-slider" id="sizeSlider">
+      <span class="size-display" id="sizeDisplay">120px</span>
+    </div>
+
+    <div class="hint">Click text to edit · Background to roll</div>
+  </div>
+
+  <script>
+    const FONTS = [
+      { family: "'VT323', monospace", style: "normal", weight: "400", category: "pixel" },
+      { family: "'Press Start 2P', monospace", style: "normal", weight: "400", category: "pixel", sizeMod: 0.45 },
+      { family: "'Silkscreen', monospace", style: "normal", weight: "400", category: "pixel", sizeMod: 0.7 },
+      { family: "'Silkscreen', monospace", style: "normal", weight: "700", category: "pixel", sizeMod: 0.7 },
+      { family: "'DotGothic16', sans-serif", style: "normal", weight: "400", category: "pixel" },
+      { family: "'Pixelify Sans', sans-serif", style: "normal", weight: "400", category: "pixel" },
+      { family: "'Pixelify Sans', sans-serif", style: "normal", weight: "700", category: "pixel" },
+      { family: "'Instrument Serif', serif", style: "normal", weight: "400", category: "serif" },
+      { family: "'Instrument Serif', serif", style: "italic", weight: "400", category: "serif" },
+      { family: "'DM Serif Display', serif", style: "normal", weight: "400", category: "serif" },
+      { family: "'DM Serif Display', serif", style: "italic", weight: "400", category: "serif" },
+      { family: "'Playfair Display', serif", style: "normal", weight: "700", category: "serif" },
+      { family: "'Playfair Display', serif", style: "italic", weight: "400", category: "serif" },
+      { family: "'Cormorant Garamond', serif", style: "normal", weight: "400", category: "serif" },
+      { family: "'Cormorant Garamond', serif", style: "italic", weight: "700", category: "serif" },
+      { family: "'Space Mono', monospace", style: "normal", weight: "700", category: "mono" },
+      { family: "'Space Mono', monospace", style: "italic", weight: "400", category: "mono" },
+      { family: "'IBM Plex Mono', monospace", style: "normal", weight: "700", category: "mono" },
+      { family: "'IBM Plex Mono', monospace", style: "italic", weight: "400", category: "mono" },
+      { family: "'Source Code Pro', monospace", style: "normal", weight: "400", category: "mono" },
+      { family: "'Bebas Neue', sans-serif", style: "normal", weight: "400", category: "display" },
+      { family: "system-ui, sans-serif", style: "normal", weight: "100", category: "sans" },
+      { family: "system-ui, sans-serif", style: "normal", weight: "900", category: "sans" },
+      { family: "system-ui, sans-serif", style: "italic", weight: "300", category: "sans" },
+    ];
+
+    const CASES = ["uppercase", "lowercase", "uppercase", "uppercase"];
+    const DEFAULT_WORD = "Your Brand";
+    const TRANSITION_MS = 300;
+
+    let currentWord = DEFAULT_WORD;
+    let letterStyles = [];
+    let isEditing = false;
+    let fontSize = 120;
+    let rollCount = 1;
+    let isDark = true;
+
+    const container = document.getElementById('container');
+    const wordDisplay = document.getElementById('wordDisplay');
+    const editInput = document.getElementById('editInput');
+    const counter = document.getElementById('counter');
+    const themeButton = document.getElementById('themeButton');
+    const sizeSlider = document.getElementById('sizeSlider');
+    const sizeDisplay = document.getElementById('sizeDisplay');
+
+    function pickRandom(arr) {
+      return arr[Math.floor(Math.random() * arr.length)];
+    }
+
+    function pickDifferentFont(currentFamily) {
+      const available = FONTS.filter(f => f.family !== currentFamily);
+      return pickRandom(available.length > 0 ? available : FONTS);
+    }
+
+    function makeStyle(currentFamily = null, letter = null) {
+      const font = currentFamily ? pickDifferentFont(currentFamily) : pickRandom(FONTS);
+      const upperLetter = letter ? letter.toUpperCase() : null;
+      const textCase = (upperLetter === 'I' || upperLetter === 'L') ? 'uppercase' : pickRandom(CASES);
+      const baseSizeMod = font.sizeMod || 1;
+      const sizeVariance = baseSizeMod * (0.99 + Math.random() * 0.02);
+      const baselineShift = (Math.random() - 0.5) * 4;
+      const letterSpacing = Math.random() * 2;
+      return { ...font, textCase, sizeVariance, baselineShift, letterSpacing };
+    }
+
+    function generateAllStyles(word, currentStyles = null) {
+      return word.split("").map((char, i) => {
+        const currentFamily = currentStyles && currentStyles[i] ? currentStyles[i].family : null;
+        return makeStyle(currentFamily, char);
+      });
+    }
+
+    function renderWord() {
+      wordDisplay.innerHTML = '';
+      currentWord.split('').forEach((char, i) => {
+        const style = letterStyles[i];
+        if (!style) return;
+
+        const span = document.createElement('span');
+        span.className = 'letter';
+        span.textContent = style.textCase === 'lowercase' ? char.toLowerCase() : char.toUpperCase();
+        
+        span.style.fontFamily = style.family;
+        span.style.fontStyle = style.style;
+        span.style.fontWeight = style.weight;
+        span.style.fontSize = `${fontSize * style.sizeVariance}px`;
+        span.style.textTransform = style.textCase;
+        span.style.transform = `translateY(${style.baselineShift}px)`;
+        span.style.letterSpacing = `${style.letterSpacing}px`;
+        
+        if (style.category === 'pixel') {
+          span.style.imageRendering = 'pixelated';
+          span.style.webkitFontSmoothing = 'none';
+        }
+
+        wordDisplay.appendChild(span);
+      });
+    }
+
+    function roll() {
+      if (isEditing) return;
+      letterStyles = generateAllStyles(currentWord, letterStyles);
+      rollCount++;
+      counter.textContent = `#${String(rollCount).padStart(4, '0')}`;
+      renderWord();
+    }
+
+    function startEditing() {
+      if (isEditing) return;
+      isEditing = true;
+      container.classList.add('editing');
+      
+      editInput.value = currentWord;
+      editInput.style.display = 'block';
+      editInput.style.fontSize = `${fontSize * 0.8}px`;
+      editInput.style.width = `${Math.max(200, currentWord.length * fontSize * 0.5)}px`;
+      wordDisplay.style.display = 'none';
+      
+      editInput.focus();
+      editInput.select();
+    }
+
+    function finishEditing() {
+      if (!isEditing) return;
+      isEditing = false;
+      container.classList.remove('editing');
+
+      const newWord = editInput.value.trim();
+      if (newWord.length > 0) {
+        currentWord = newWord.toUpperCase();
+        letterStyles = generateAllStyles(currentWord);
+        rollCount = 1;
+        counter.textContent = '#0001';
+      }
+
+      editInput.style.display = 'none';
+      wordDisplay.style.display = 'flex';
+      renderWord();
+    }
+
+    function toggleTheme() {
+      isDark = !isDark;
+      container.className = `container ${isDark ? 'dark' : 'light'}`;
+      themeButton.textContent = isDark ? 'Light' : 'Dark';
+    }
+
+    function updateFontSize(newSize) {
+      fontSize = parseInt(newSize);
+      sizeDisplay.textContent = `${fontSize}px`;
+      if (isEditing) {
+        editInput.style.fontSize = `${fontSize * 0.8}px`;
+        editInput.style.width = `${Math.max(200, currentWord.length * fontSize * 0.5)}px`;
+      } else {
+        renderWord();
+      }
+    }
+
+    // Event listeners
+    container.addEventListener('click', (e) => {
+      if (e.target === wordDisplay || wordDisplay.contains(e.target)) {
+        startEditing();
+      } else if (!isEditing) {
+        roll();
+      }
+    });
+
+    editInput.addEventListener('keydown', (e) => {
+      e.stopPropagation();
+      if (e.key === 'Enter') {
+        finishEditing();
+      } else if (e.key === 'Escape') {
+        editInput.value = currentWord;
+        finishEditing();
+      }
+    });
+
+    editInput.addEventListener('blur', finishEditing);
+
+    themeButton.addEventListener('click', (e) => {
+      e.stopPropagation();
+      toggleTheme();
+    });
+
+    sizeSlider.addEventListener('input', (e) => {
+      e.stopPropagation();
+      updateFontSize(e.target.value);
+    });
+
+    sizeSlider.addEventListener('click', (e) => {
+      e.stopPropagation();
+    });
+
+    // Keyboard shortcuts
+    document.addEventListener('keydown', (e) => {
+      if (e.code === 'Space' && !isEditing) {
+        e.preventDefault();
+        roll();
+      }
+    });
+
+    // Theme button hover effects
+    themeButton.addEventListener('mouseenter', () => {
+      if (isDark) {
+        themeButton.style.color = '#f5f2ed';
+        themeButton.style.borderColor = '#f5f2ed';
+      } else {
+        themeButton.style.color = '#0a0a0a';
+        themeButton.style.borderColor = '#0a0a0a';
+      }
+    });
+
+    themeButton.addEventListener('mouseleave', () => {
+      themeButton.style.color = '';
+      themeButton.style.borderColor = '';
+    });
+
+    // Initialize
+    letterStyles = generateAllStyles(currentWord);
+    renderWord();
+  </script>
 </body>
 </html>
